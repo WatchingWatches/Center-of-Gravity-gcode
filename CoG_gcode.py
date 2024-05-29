@@ -13,7 +13,6 @@ TYPE_COMMENT = ";TYPE:"
 IGNORE_TYPE = [";TYPE:Support material", ";TYPE:Skirt/Brim",
                ";TYPE:Support material interface", ";TYPE:Custom"] #prusa
 LAYER_CHANGE = ";LAYER_CHANGE"
-
 #EDIT END
 
 ignore = False
@@ -39,6 +38,7 @@ prog_G = re.compile(r"^G[0-1]")
 
 prog_move = re.compile(r'^G[0-1].*X.*Y')
 
+# this function comes from: https://github.com/CNCKitchen/GradientInfill/blob/master/addGradientInfill.py
 def getXY(currentLine: str) -> Point2D:
     """Create a ``Point2D`` object from a gcode line.
 
