@@ -8,7 +8,7 @@ import re
 from collections import namedtuple
 
 #EDIT:
-INPUT_PATH = r"C:\Users\bjans\Downloads\Shape-Box_50m_0.20mm_200C_PLA_ENDER5PRO.gcode"
+INPUT_PATH = r"C:\Users\bjans\Downloads\Headrest Foam_14h13m_0.20mm_200C_PLA_ENDER5PRO.gcode"
 TYPE_COMMENT = ";TYPE:"
 IGNORE_TYPE = [";TYPE:Support material", ";TYPE:Skirt/Brim",
                ";TYPE:Support material interface", ";TYPE:Custom"] #prusa
@@ -16,7 +16,7 @@ LAYER_CHANGE = ";LAYER_CHANGE"
 
 #EDIT END
 
-ignore = True
+ignore = False
 E_layer = 0
 E_total = 0
 Z = 0
@@ -24,6 +24,9 @@ Z = 0
 X_Y = [[], []]
 CoG = []
 after_layer_change = False
+retr = False
+de_retr = 0
+retr_d = 0
 
 Point2D = namedtuple('Point2D', 'x y')
 last_pos = Point2D(0,0)
@@ -31,7 +34,7 @@ last_pos = Point2D(0,0)
 prog_X = re.compile(r"X(\d*\.?\d*)")
 prog_Y = re.compile(r"Y(\d*\.?\d*)")
 prog_Z = re.compile(r"Z(\d*\.?\d*)")
-prog_E = re.compile(r"E(\d*\.?\d*)")
+prog_E = re.compile(r"E(.?\-*\d*\.?\d*)")
 prog_G = re.compile(r"^G[0-1]")
 
 prog_move = re.compile(r'^G[0-1].*X.*Y')
@@ -87,7 +90,6 @@ with open(INPUT_PATH, "r") as gcodeFile:
             # when list is not empty 
             if len(X_Y[0]) + len(X_Y[1]) > 0:
                 CoG.append([(sum(X_Y[0]), sum(X_Y[1])), Z * E_layer])
-                pass
             # reset layer list
             X_Y = [[], []]
             E_layer = 0
@@ -97,6 +99,7 @@ with open(INPUT_PATH, "r") as gcodeFile:
             Z_move = prog_Z.search(current_line)
             if after_layer_change and Z_move:
                 Z = float(Z_move.group(1))
+                after_layer_change = False
                 
             if prog_move.search(current_line):
                 pos = getXY(current_line)
@@ -105,9 +108,22 @@ with open(INPUT_PATH, "r") as gcodeFile:
                 if not ignore:
                     if "E" in current_line:
                         E = float(prog_E.search(current_line).group(1))
+                        if E < 0:
+                            retr = True
+                            retr_d += abs(E)
+                            de_retr = 0
+                            last_pos = pos
+                            continue
+                        elif retr:
+                            de_retr += E
+                            if de_retr >= retr_d:
+                                retr = False
+                                retr_d = 0
+                                last_pos = pos
+                                continue
+                                
                         E_layer += E
                         E_total += E
-                        #TODO retractions
                         
                         middle = middle_point(last_pos, pos)
                         for i in range(2):
