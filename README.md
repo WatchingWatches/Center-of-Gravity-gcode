@@ -22,19 +22,9 @@ You won't have a graphical representation, where the CoG is. I recommend to open
 - one material (same density)
 
 ## Derivation of the formula to calculate the CoG:
-$$
-x_{s_{layer}} = \frac{\sum_{i}x_{i}*V_{i}}{\sum_{i}V_{i}}
-$$
-$$
-x_{s_{total}} = \frac{\sum_{layer}(\frac{\sum_{i}x_{i}*V_{i}}{\sum_{i}V_{i}})*V_{layer}}{\sum_{layer}V_{layer}} ; V_{layer} = \sum_{i}V_{i}
-$$
-$$
-x_{s_{total}} = \frac{\sum_{layer}(\sum_{i}x_{i}*V_{i})}{\sum_{layer}V_{layer}} 
-$$
-$$
-V_{cylinder} = \pi* r^2 *E ; E:= h
-$$
-$$
-x_{s_{total}} = \frac{\sum_{layer}(\sum_{i}x_{i}*E_{i})}{\sum_{layer}E_{layer}} 
-$$
+$$x_{s_{layer}} = \frac{\sum_{i}x_{i}*V_{i}}{\sum_{i}V_{i}}$$
+$$x_{s_{total}} = \frac{\sum_{layer}(\frac{\sum_{i}x_{i}*V_{i}}{\sum_{i}V_{i}})*V_{layer}}{\sum_{layer}V_{layer}} ; V_{layer} = \sum_{i}V_{i}$$
+$$x_{s_{total}} = \frac{\sum_{layer}(\sum_{i}x_{i}*V_{i})}{\sum_{layer}V_{layer}} $$
+$$V_{cylinder} = \pi* r^2 *E ; E:= h$$
+$$x_{s_{total}} = \frac{\sum_{layer}(\sum_{i}x_{i}*E_{i})}{\sum_{layer}E_{layer}}$$
 [source](https://en.wikipedia.org/w/index.php?title=Special:MathWikibase&qid=Q2945123)
