@@ -8,11 +8,12 @@ import re
 from collections import namedtuple
 
 #EDIT:
-INPUT_PATH = r"C:\Users\bjans\Downloads\Headrest Foam_12h19m_0.20mm_200C_PLA_ENDER5PRO.gcode"
+INPUT_PATH = r"C:\Users\bjans\Downloads\Z_gradient.gcode"
 TYPE_COMMENT = ";TYPE:"
 IGNORE_TYPE = [";TYPE:Support material", ";TYPE:Skirt/Brim",
                ";TYPE:Support material interface", ";TYPE:Custom"] #prusa
 LAYER_CHANGE = ";LAYER_CHANGE"
+READ_M221 = True # use M221 to consider as flow factor
 #EDIT END
 
 ignore = False
@@ -26,6 +27,7 @@ after_layer_change = False
 retr = False
 de_retr = 0
 retr_d = 0
+E_factor = 1
 
 Point2D = namedtuple('Point2D', 'x y')
 last_pos = Point2D(0,0)
@@ -34,6 +36,7 @@ prog_X = re.compile(r"X(\d*\.?\d*)")
 prog_Y = re.compile(r"Y(\d*\.?\d*)")
 prog_Z = re.compile(r"Z(\d*\.?\d*)")
 prog_E = re.compile(r"E(.?\-*\d*\.?\d*)")
+prog_S = re.compile(r"S(\d*\.?\d*)")
 prog_G = re.compile(r"^G[0-1]")
 
 prog_move = re.compile(r'^G[0-1].*X.*Y')
@@ -96,6 +99,10 @@ with open(INPUT_PATH, "r") as gcodeFile:
             E_layer = 0
             after_layer_change = True
         
+        if READ_M221 and current_line.startswith("M221"):
+            E_factor = float(prog_S.search(current_line).group(1)) / 100
+            continue
+        
         if prog_G.match(current_line):
             Z_move = prog_Z.search(current_line)
             if after_layer_change and Z_move:
@@ -123,12 +130,12 @@ with open(INPUT_PATH, "r") as gcodeFile:
                                 last_pos = pos
                                 continue
                                 
-                        E_layer += E
-                        E_total += E
+                        E_layer += E * E_factor
+                        E_total += E * E_factor
                         
                         middle = middle_point(last_pos, pos)
                         for i in range(2):
-                            X_Y[i].append(middle[i] * E)
+                            X_Y[i].append(middle[i] * E * E_factor)
             
                 last_pos = pos
 
