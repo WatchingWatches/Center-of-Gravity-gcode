@@ -10,7 +10,7 @@ and calculate the CoG with supports. This script allows to adapt to any gcode wi
 I also added an option to consider M221 commands as an flow factor, which is not done by gcode viewers, because normally this command is interpreted by your printers firmware.
 To enable this feature set ``READ_M221 = True``. 
 This script gives you the freedom to implement these kind of niche applications.
- 
+
 ### How to operate: 
 1. check, that your gcode is compatible with the requirements 
 2. change the path to your gcode file to ``INPUT_PATH``
@@ -26,6 +26,7 @@ You won't have a graphical representation, where the CoG is. I recommend to open
 - only relative E
 - planar slicing
 - one material (same density)
+- one object
 
 ## Derivation of the formula to calculate the CoG:
 $$x_{s_{layer}} = \frac{\sum_{i}x_{i}*V_{i}}{\sum_{i}V_{i}}$$
