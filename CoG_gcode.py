@@ -8,7 +8,7 @@ import re
 from collections import namedtuple
 
 #EDIT:
-INPUT_PATH = r"C:\Users\bjans\Downloads\Headrest Foam_14h13m_0.20mm_200C_PLA_ENDER5PRO.gcode"
+INPUT_PATH = r"C:\Users\bjans\Downloads\Headrest Foam_12h19m_0.20mm_200C_PLA_ENDER5PRO.gcode"
 TYPE_COMMENT = ";TYPE:"
 IGNORE_TYPE = [";TYPE:Support material", ";TYPE:Skirt/Brim",
                ";TYPE:Support material interface", ";TYPE:Custom"] #prusa
@@ -79,12 +79,13 @@ def middle_point(point_1: Point2D, point_2: Point2D)-> Point2D:
 with open(INPUT_PATH, "r") as gcodeFile:
     for current_line in gcodeFile:
         if current_line.startswith(TYPE_COMMENT):
+            ignore = False
             for unwanted_type in IGNORE_TYPE: 
                 if current_line.startswith(unwanted_type):
                     ignore = True
-                    continue
-                
-            ignore = False
+                    break
+            continue
+            
         
         if current_line.startswith(LAYER_CHANGE):
             # when list is not empty 
