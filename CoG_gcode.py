@@ -1,14 +1,15 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Wed May 29 19:10:08 2024
-
-@author: bjans
+License: MIT
+@author: Benedikt Jansson - WatchingWatches
 """
 import re
 from collections import namedtuple
 
 #EDIT:
-INPUT_PATH = r"C:\Users\bjans\Downloads\Z_gradient.gcode"
+INPUT_PATH = r"C:\Users\bjans\Downloads\xbox_stealth_stand_54m_0.16mm_200C_PLA_ENDER5PRO.gcode"
 TYPE_COMMENT = ";TYPE:"
 IGNORE_TYPE = [";TYPE:Support material", ";TYPE:Skirt/Brim",
                ";TYPE:Support material interface", ";TYPE:Custom"] #prusa
@@ -20,6 +21,7 @@ ignore = False
 E_layer = 0
 E_total = 0
 Z = 0
+last_Z = 0
 
 X_Y = [[], []]
 CoG = []
@@ -88,15 +90,24 @@ with open(INPUT_PATH, "r") as gcodeFile:
                     ignore = True
                     break
             continue
-            
         
-        if current_line.startswith(LAYER_CHANGE):
+        # stop program if G2/3 movements are detected
+        if current_line.startswith("G2 ") or current_line.startswith("G3 "):
+            print("\033[91mWARNING: G2/3 movements are not supported!\033[0m")
+            print("\033[91mPlease change the gcode to only use G0/1 movements\033[0m")
+            print("\033[91mThe output CoG is incorrect!\033[0m")
+            print(current_line)
+            break    
+        
+        if current_line.startswith(LAYER_CHANGE) or current_line.startswith(";End gcode"):
             # when list is not empty 
             if len(X_Y[0]) + len(X_Y[1]) > 0:
-                CoG.append([(sum(X_Y[0]), sum(X_Y[1])), Z * E_layer])
+                # Z CoG is in the middle of the layer
+                CoG.append([(sum(X_Y[0]), sum(X_Y[1])), round(Z - (Z-last_Z)/2, 3) * E_layer])
             # reset layer list
             X_Y = [[], []]
             E_layer = 0
+            last_Z = Z
             after_layer_change = True
         
         if READ_M221 and current_line.startswith("M221"):
