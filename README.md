@@ -1,4 +1,4 @@
-# Center of Gravity Gcode
+# Center of Gravity Gcode (FDM)
 ## Introduction:
 This python script can calculate the Center of gravity from the gcode. It can ignore unwanted objects in the gcode like support, skirt brim etc.
 To do so it needs comments from the gcode, which mark an unwanted feature type.
