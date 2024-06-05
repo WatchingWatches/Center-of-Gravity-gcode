@@ -7,14 +7,19 @@ License: MIT
 """
 import re
 from collections import namedtuple
+from colorama import Fore, Style
+
+Point2D = namedtuple('Point2D', 'x y')
+Point3D = namedtuple('Point3D', 'x y z')
 
 #EDIT:
-INPUT_PATH = r"C:\Users\bjans\Downloads\xbox_stealth_stand_54m_0.16mm_200C_PLA_ENDER5PRO.gcode"
+INPUT_PATH = r"C:\Users\bjans\Downloads\xbox_stealth_stand_53m_0.16mm_200C_PLA_ENDER5PRO.gcode"
 TYPE_COMMENT = ";TYPE:"
 IGNORE_TYPE = [";TYPE:Support material", ";TYPE:Skirt/Brim",
                ";TYPE:Support material interface", ";TYPE:Custom"] #prusa
 LAYER_CHANGE = ";LAYER_CHANGE"
 READ_M221 = True # use M221 to consider as flow factor
+Coordinate_origin = Point3D(0, 0, 0) # define an origin for coordinate system (default 0,0,0 := same as gcode)
 #EDIT END
 
 ignore = False
@@ -23,7 +28,7 @@ E_total = 0
 Z = 0
 last_Z = 0
 
-X_Y = [[], []]
+X_Y = [0, 0]
 CoG = []
 after_layer_change = False
 retr = False
@@ -31,7 +36,7 @@ de_retr = 0
 retr_d = 0
 E_factor = 1
 
-Point2D = namedtuple('Point2D', 'x y')
+
 last_pos = Point2D(0,0)
 
 prog_X = re.compile(r"X(\d*\.?\d*)")
@@ -93,19 +98,22 @@ with open(INPUT_PATH, "r") as gcodeFile:
         
         # stop program if G2/3 movements are detected
         if current_line.startswith("G2 ") or current_line.startswith("G3 "):
-            print("\033[91mWARNING: G2/3 movements are not supported!\033[0m")
-            print("\033[91mPlease change the gcode to only use G0/1 movements\033[0m")
-            print("\033[91mThe output CoG is incorrect!\033[0m")
-            print(current_line)
+            # in some IDE's the second method doesn't work
+            print(Fore.RED +"\033[91mWARNING: G2/3 movements are not supported!\033[0m")
+            print(Fore.RED +"\033[91mPlease change the gcode to only use G0/1 movements\033[0m")
+            print(Fore.RED +"\033[91mThe output CoG is incorrect!\033[0m")
+            print(Style.RESET_ALL)
+            print(Fore.MAGENTA + current_line)
+            print(Style.RESET_ALL)
             break    
-        
+        # TODO: mit enumerate ende der schleife dann end obsolet
         if current_line.startswith(LAYER_CHANGE) or current_line.startswith(";End gcode"):
             # when list is not empty 
-            if len(X_Y[0]) + len(X_Y[1]) > 0:
+            if X_Y[0] + X_Y[1] > 0:
                 # Z CoG is in the middle of the layer
-                CoG.append([(sum(X_Y[0]), sum(X_Y[1])), round(Z - (Z-last_Z)/2, 3) * E_layer])
+                CoG.append([[X_Y[0], X_Y[1]], round(Z - (Z-last_Z)/2, 3) * E_layer])
             # reset layer list
-            X_Y = [[], []]
+            X_Y = [0, 0]
             E_layer = 0
             last_Z = Z
             after_layer_change = True
@@ -146,7 +154,7 @@ with open(INPUT_PATH, "r") as gcodeFile:
                         
                         middle = middle_point(last_pos, pos)
                         for i in range(2):
-                            X_Y[i].append(middle[i] * E * E_factor)
+                            X_Y[i] += middle[i] * E * E_factor
             
                 last_pos = pos
 
@@ -163,4 +171,10 @@ X_CoG /= E_total
 Y_CoG /= E_total
 Z_CoG /= E_total
 
+X_CoG -= Coordinate_origin[0]
+Y_CoG -= Coordinate_origin[1]
+Z_CoG -= Coordinate_origin[2]
+
+print("Gcode file:", INPUT_PATH)
 print("CoG: X{} Y{} Z{}".format(X_CoG, Y_CoG, Z_CoG))
+print(f"Coordinate System origin X:{Coordinate_origin[0]} Y:{Coordinate_origin[1]} Z:{Coordinate_origin[2]}")

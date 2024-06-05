@@ -40,7 +40,7 @@ $$x_{s_{total}} = \frac{\sum_{layer}(\sum_{i}x_{i}*V_{i})}{\sum_{layer}V_{layer}
 $$V_{cylinder} = \pi * r^2 * E$$
 $$E := h$$
 $$x_{s_{total}} = \frac{\sum_{layer}(\sum_{i}x_{i}*E_{i})}{\sum_{layer}E_{layer}}$$
-[source](https://en.wikipedia.org/w/index.php?title=Special:MathWikibase&qid=Q2945123)
+[Source](https://en.wikipedia.org/w/index.php?title=Special:MathWikibase&qid=Q2945123)
 
 To make the script efficient the X/Y-CoG of each layer gets calculated and saved for each layer. At the end the final CoG gets calculated based on all layers.
 
