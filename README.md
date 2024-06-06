@@ -28,10 +28,6 @@ You won't have a graphical representation, where the CoG is. I recommend to open
 - one material (same density)
 - one object
 
-**Add ";End gcode" to your end gcode** otherwise the script won't consider the last layer of your print.
-In Prusa slicer go to: Printer Settings -> Custom G-code -> End G-code
-and insert ";End gcode" at the top.
-
 ## Derivation of the formula to calculate the CoG:
 $$x_{s_{layer}} = \frac{\sum_{i}x_{i}*V_{i}}{\sum_{i}V_{i}}$$
 $$x_{s_{total}} = \frac{\sum_{layer}(\frac{\sum_{i}x_{i}*V_{i}}{\sum_{i}V_{i}})*V_{layer}}{\sum_{layer}V_{layer}}$$
@@ -42,10 +38,11 @@ $$E := h$$
 $$x_{s_{total}} = \frac{\sum_{layer}(\sum_{i}x_{i}*E_{i})}{\sum_{layer}E_{layer}}$$
 [Source](https://en.wikipedia.org/w/index.php?title=Special:MathWikibase&qid=Q2945123)
 
-To make the script efficient the X/Y-CoG of each layer gets calculated and saved for each layer. At the end the final CoG gets calculated based on all layers.
+To make the script efficient the X/Y-CoG of each layer gets calculated and saved for each layer (this way you could modify the script to see the CoG changing every layer).
+ At the end the final CoG gets calculated based on all layers.
 
 The Z-CoG gets calculated with the first formula.
 
 ### Assumptions:
-Each extruded line is symmetric, so the CoG is in the middle of the line.
+Each extruded line is symmetric, so the X/Y-CoG is in the middle of the line.
 The Z-CoG is in the middle of the layer.

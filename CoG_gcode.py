@@ -13,7 +13,7 @@ Point2D = namedtuple('Point2D', 'x y')
 Point3D = namedtuple('Point3D', 'x y z')
 
 #EDIT:
-INPUT_PATH = r"C:\Users\bjans\Downloads\xbox_stealth_stand_53m_0.16mm_200C_PLA_ENDER5PRO.gcode"
+INPUT_PATH = r"C:\Users\bjans\Downloads\xbox_stealth_stand_54m_0.16mm_200C_PLA_ENDER5PRO.gcode"
 TYPE_COMMENT = ";TYPE:"
 IGNORE_TYPE = [";TYPE:Support material", ";TYPE:Skirt/Brim",
                ";TYPE:Support material interface", ";TYPE:Custom"] #prusa
@@ -86,8 +86,9 @@ def middle_point(point_1: Point2D, point_2: Point2D)-> Point2D:
     
     return Point2D(point_2[0] - d_x/2, point_2[1] - d_y/2)
 
-with open(INPUT_PATH, "r") as gcodeFile:
-    for current_line in gcodeFile:
+with open(INPUT_PATH, "r") as gcode:
+    gcodeFile = gcode.readlines()
+    for i, current_line in enumerate(gcodeFile):
         if current_line.startswith(TYPE_COMMENT):
             ignore = False
             for unwanted_type in IGNORE_TYPE: 
@@ -106,8 +107,8 @@ with open(INPUT_PATH, "r") as gcodeFile:
             print(Fore.MAGENTA + current_line)
             print(Style.RESET_ALL)
             break    
-        # TODO: mit enumerate ende der schleife dann end obsolet
-        if current_line.startswith(LAYER_CHANGE) or current_line.startswith(";End gcode"):
+        
+        if current_line.startswith(LAYER_CHANGE) or i == len(gcodeFile)-1:
             # when list is not empty 
             if X_Y[0] + X_Y[1] > 0:
                 # Z CoG is in the middle of the layer
